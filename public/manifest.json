@@ -1,0 +1,73 @@
+{
+  "name": "Namma Access - Bengaluru Accessibility Platform",
+  "short_name": "Namma Access",
+  "description": "Complete accessibility platform for seniors, disabled individuals, and parents in Bengaluru with voice control in Kannada, Hindi, and English",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F766E",
+  "theme_color": "#0F766E",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "medical", "lifestyle", "accessibility"],
+  "lang": "en-IN",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Emergency SOS",
+      "short_name": "SOS",
+      "description": "Quick access to emergency services",
+      "url": "/?page=emergency",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "Add Medicine",
+      "short_name": "Medicine",
+      "description": "Add medicine reminder",
+      "url": "/?page=medicines",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any"
+        }
+      ]
+    },
+    {
+      "name": "Voice Assistant",
+      "short_name": "Voice",
+      "description": "Open voice assistant",
+      "url": "/?voice=true",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any"
+        }
+      ]
+    }
+  ]
+}

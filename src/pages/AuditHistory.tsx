@@ -1,99 +1,73 @@
-import React, { useState, useMemo } from 'react';
-import { ScrollText, Download, Filter, FileJson, FileText } from 'lucide-react';
-import { useVaxGuard } from '@/hooks/useVaxGuard';
-import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { formatDateTime, toCSV, downloadFile } from '@/utils/helpers';
-import type { EventCategory } from '@/types';
-import { cn } from '@/utils/cn';
+import React from 'react';
+import { nammaStorage } from '@/services/nammaStorage';
 
-const CATEGORIES: (EventCategory | 'all')[] = ['all', 'alert', 'settings', 'demo', 'system', 'network', 'voice', 'notification'];
+interface AuditHistoryProps {
+  onNavigate: (page: string) => void;
+}
 
-export function AuditHistory() {
-  const { audit } = useVaxGuard();
-  const [filter, setFilter] = useState<EventCategory | 'all'>('all');
+export function AuditHistory({ onNavigate }: AuditHistoryProps) {
+  const logs = nammaStorage.getAuditLogs();
 
-  const filtered = useMemo(() => {
-    if (filter === 'all') return audit;
-    return audit.filter(a => a.category === filter);
-  }, [audit, filter]);
-
-  const handleExportJSON = () => {
-    const json = JSON.stringify(filtered, null, 2);
-    downloadFile(json, `vaxguard_audit_${Date.now()}.json`, 'application/json');
-  };
-
-  const handleExportCSV = () => {
-    const csv = toCSV(filtered.map(a => ({
-      id: a.id, timestamp: new Date(a.timestamp).toISOString(),
-      action: a.action, category: a.category, actor: a.actor, details: a.details,
-    })));
-    downloadFile(csv, `vaxguard_audit_${Date.now()}.csv`, 'text/csv');
+  const exportCSV = () => {
+    const csvRows = [
+      ['Timestamp', 'Category', 'Action', 'Details', 'Actor', 'Outcome'],
+      ...logs.map(log => [
+        new Date(log.timestamp).toLocaleString(),
+        log.category,
+        log.action,
+        log.details,
+        log.actor,
+        log.outcome
+      ])
+    ];
+    const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `NammaAccess_History_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    nammaStorage.addAudit('security', 'History Export', 'User exported history logs to CSV');
   };
 
   return (
-    <div className="space-y-6">
-      {/* Actions */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <Filter size={16} className="text-slate-500" />
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={cn(
-                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize',
-                filter === cat
-                  ? 'bg-primary-500/20 text-primary-300 border border-primary-500/30'
-                  : 'bg-surface-200/30 text-slate-400 hover:text-slate-200 border border-transparent'
-              )}
-            >
-              {cat}
+    <div className="max-w-5xl mx-auto p-6 space-y-6 animate-fade-in">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+            <button onClick={() => onNavigate('home')} className="text-teal-600 text-sm font-semibold hover:underline mb-4 block">
+                &larr; Back to Home
             </button>
-          ))}
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" icon={<FileJson size={14} />} onClick={handleExportJSON}>JSON</Button>
-          <Button variant="outline" size="sm" icon={<FileText size={14} />} onClick={handleExportCSV}>CSV</Button>
-        </div>
-      </div>
-
-      {/* Audit log */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ScrollText size={16} className="text-primary-400" />
-            Audit Log
-            <Badge variant="neutral" size="sm">{filtered.length} entries</Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardBody>
-          {filtered.length === 0 ? (
-            <EmptyState icon={<ScrollText size={28} />} title="No audit entries" description="System actions will be logged here." />
-          ) : (
-            <div className="space-y-1">
-              {filtered.slice(0, 100).map(entry => (
-                <div key={entry.id} className="flex items-start gap-3 p-2.5 rounded-lg hover:bg-surface-200/20 transition-colors">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary-400/50 mt-2 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium text-slate-200">{entry.action}</p>
-                      <Badge variant="neutral" size="sm">{entry.category}</Badge>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-0.5">{entry.details}</p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-xs text-slate-500">{formatDateTime(entry.timestamp)}</p>
-                    <p className="text-xs text-slate-600">by {entry.actor}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-extrabold text-stone-900">Personal Activity History</h1>
+                <button onClick={exportCSV} className="px-4 py-2 bg-teal-600 text-white font-semibold rounded-xl text-sm">Download CSV Export</button>
             </div>
-          )}
-        </CardBody>
-      </Card>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+            <table className="w-full text-left text-sm">
+                <thead className="bg-stone-50 border-b border-stone-200">
+                    <tr>
+                        <th className="p-4 font-bold text-stone-700">Timestamp</th>
+                        <th className="p-4 font-bold text-stone-700">Category</th>
+                        <th className="p-4 font-bold text-stone-700">Action</th>
+                        <th className="p-4 font-bold text-stone-700">Outcome</th>
+                    </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                    {logs.map(log => (
+                        <tr key={log.id} className="hover:bg-stone-50">
+                            <td className="p-4 text-stone-600">{new Date(log.timestamp).toLocaleString()}</td>
+                            <td className="p-4 font-medium uppercase text-teal-800">{log.category}</td>
+                            <td className="p-4 text-stone-900">{log.action}<br/><span className="text-xs text-stone-400">{log.details}</span></td>
+                            <td className="p-4">
+                                <span className={`px-2 py-0.5 rounded font-bold text-xs ${log.outcome === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                    {log.outcome.toUpperCase()}
+                                </span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     </div>
   );
 }

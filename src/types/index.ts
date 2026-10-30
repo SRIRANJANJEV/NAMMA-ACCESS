@@ -1,196 +1,141 @@
-// ===== Core Telemetry Types =====
+// ===== NAMMA ACCESS - INCLUSIVE BENGALURU TYPES =====
 
-export type SystemMode = 'live' | 'demo';
-export type SystemStatus = 'normal' | 'warning' | 'critical' | 'offline' | 'recovery';
-export type ConnectionStatus = 'connected' | 'connecting' | 'disconnected' | 'error' | 'not_configured';
-export type ConnectionType = 'rest' | 'websocket' | 'socketio';
-export type Severity = 'normal' | 'warning' | 'critical' | 'info' | 'system';
-export type EventCategory = 'temperature' | 'vibration' | 'network' | 'system' | 'alert' | 'recovery' | 'settings' | 'demo' | 'voice' | 'notification';
-export type IncidentStatus = 'active' | 'acknowledged' | 'resolved';
-export type DemoScenario = 'normal' | 'warning' | 'high_temp' | 'low_temp' | 'vibration' | 'critical' | 'offline' | 'recovery';
+export type SupportCategory = 'senior' | 'disability' | 'parenting';
+export type DisabilityMode = 'vision' | 'hearing';
+export type AppLanguage = 'en' | 'kn' | 'hi'; // English, Kannada, Hindi
+export type RiskLevel = 'low' | 'suspicious' | 'high' | 'unable';
 
-export interface TelemetryReading {
-  temperature: number;
-  humidity: number;
-  vibration: boolean;
-  timestamp: number;
-  deviceOnline: boolean;
+export interface AccessibilityPreferences {
+  largeText: boolean;
+  highContrast: boolean;
+  screenReaderOptimized: boolean;
+  voiceAssistantEnabled: boolean;
+  textToSpeechRate: number; // 0.8 to 1.5
+  vibrationAlerts: boolean;
+  visualAlerts: boolean;
 }
 
-export interface TelemetryRecord extends TelemetryReading {
+export interface EmergencyContact {
   id: string;
-}
-
-export interface VibrationEvent {
-  id: string;
-  timestamp: number;
-  intensity: 'detected' | 'shock' | 'disturbance';
-  duration: number;
-}
-
-export interface AlertEvent {
-  id: string;
-  timestamp: number;
-  severity: Severity;
-  category: EventCategory;
-  title: string;
-  description: string;
-  sensorValue?: string;
-  threshold?: string;
-  acknowledged: boolean;
-  acknowledgedAt?: number;
-  acknowledgedBy?: string;
-  resolved: boolean;
-  resolvedAt?: number;
-  notes: string[];
-  source: string;
-  incidentId?: string;
-}
-
-export interface Incident {
-  id: string;
-  alertId: string;
-  timestamp: number;
-  severity: Severity;
-  category: EventCategory;
-  title: string;
-  description: string;
-  sensorValue: string;
-  threshold: string;
-  duration: number;
-  status: IncidentStatus;
-  acknowledged: boolean;
-  acknowledgedAt?: number;
-  acknowledgedBy?: string;
-  notes: string[];
-  telemetrySnapshot: TelemetryRecord[];
-  resolvedAt?: number;
-}
-
-export interface TimelineEvent {
-  id: string;
-  timestamp: number;
-  type: EventCategory;
-  severity: Severity;
-  title: string;
-  description: string;
-  source: string;
-}
-
-export interface AuditEntry {
-  id: string;
-  timestamp: number;
-  action: string;
-  category: EventCategory;
-  actor: string;
-  details: string;
-}
-
-export interface DeviceInfo {
   name: string;
-  model: string;
-  firmware: string;
-  connection: ConnectionStatus;
-  uptime: number;
-  lastTelemetry: number | null;
-  lastRestart: number | null;
-  freeMemory: number | null;
-  signalStrength: number | null;
-  sensors: {
-    dht11: 'online' | 'offline' | 'unknown';
-    sw420: 'online' | 'offline' | 'unknown';
-  };
+  relationship: string;
+  phone: string;
+  isCaregiver: boolean;
+  isPrimary: boolean;
 }
 
-export interface NetworkInfo {
-  wifiStatus: ConnectionStatus;
-  serverStatus: ConnectionStatus;
-  apiStatus: ConnectionStatus;
-  websocketStatus: ConnectionStatus;
-  latency: number | null;
-  lastSuccessfulUpdate: number | null;
-  reconnectAttempts: number;
-  errorMessage: string | null;
-}
-
-export interface Settings {
-  general: {
-    appName: string;
-    deviceName: string;
-  };
-  telemetry: {
-    connectionType: ConnectionType;
-    serverUrl: string;
-    pollInterval: number;
-  };
-  temperature: {
-    safeMin: number;
-    safeMax: number;
-    warningBoundary: number;
-    criticalDuration: number;
-  };
-  vibration: {
-    sensitivity: 'low' | 'medium' | 'high';
-    cooldown: number;
-  };
-  alerts: {
-    cooldown: number;
-    debounce: number;
-    voiceAlerts: boolean;
-    telegramAlerts: boolean;
-  };
-  telegram: {
-    configured: boolean;
-    backendUrl: string;
-  };
-  voice: {
-    assistantEnabled: boolean;
-    emergencyVoiceEnabled: boolean;
-    volume: number;
-  };
-  ai: {
-    enabled: boolean;
-    apiKey: string;
-    useLocal: boolean;
-  };
-  appearance: {
-    compactMode: boolean;
-    showGrid: boolean;
-  };
-  data: {
-    maxTelemetryRecords: number;
-    autoExport: boolean;
-  };
-  demo: {
-    autoSimulate: boolean;
-    updateInterval: number;
-  noiseLevel: number;
-  smoothness: number;
-  startScenario: DemoScenario;
-  autoCycle: boolean;
-  autoCycleInterval: number;
-  autoCycleScenarios: DemoScenario[];
-  autoCycleCurrentIndex: number;
-  };
-}
-
-export interface DiagnosticResult {
-  component: string;
-  status: 'pass' | 'warning' | 'error' | 'not_configured';
-  message: string;
-  details?: string;
-}
-
-export interface ChatMessage {
+export interface UserProfile {
   id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: number;
+  name: string;
+  age?: number;
+  phone: string;
+  preferredLanguage: AppLanguage;
+  supportCategory: SupportCategory;
+  disabilityModes: DisabilityMode[];
+  accessibility: AccessibilityPreferences;
+  emergencyContacts: EmergencyContact[];
+  isCaregiverVerified: boolean;
+  caregiverName?: string;
+  caregiverPhone?: string;
+  updatedAt: number;
 }
 
-export interface ConditionScore {
-  score: number;
-  riskLevel: 'low' | 'moderate' | 'high' | 'severe';
-  trend: 'improving' | 'stable' | 'declining';
-  factors: { label: string; value: string; impact: 'positive' | 'neutral' | 'negative' }[];
+// Medicine Reminder
+export interface MedicineReminder {
+  id: string;
+  medicineName: string;
+  dosage: string;
+  scheduledTimes: string[]; // e.g. ["08:00", "14:00", "20:00"]
+  frequency: 'daily' | 'twice_daily' | 'weekly' | 'as_needed';
+  startDate: string;
+  endDate?: string;
+  notes?: string;
+  active: boolean;
+  takenToday: boolean;
+  lastTakenAt?: number;
+}
+
+export interface MedicineEventLog {
+  id: string;
+  reminderId: string;
+  medicineName: string;
+  dosage: string;
+  scheduledTime: string;
+  action: 'taken' | 'snoozed' | 'missed';
+  timestamp: number;
+  notes?: string;
+}
+
+// Scam Alert Analysis
+export interface ScamAnalysisResult {
+  id: string;
+  sourceType: 'sms' | 'whatsapp' | 'text' | 'link';
+  inputContent: string;
+  riskLevel: RiskLevel;
+  riskScore: number; // 0 to 100
+  reasons: string[];
+  recommendations: string[];
+  analyzedAt: number;
+  savedToHistory: boolean;
+}
+
+// Parenting Activity & Routine
+export interface ParentingActivity {
+  id: string;
+  childName: string;
+  title: string;
+  category: 'medicine' | 'appointment' | 'school' | 'routine' | 'custom';
+  scheduledTime: string;
+  scheduledDate: string;
+  notes?: string;
+  completed: boolean;
+  completedAt?: number;
+}
+
+// Official Bengaluru Verified Emergency Contact
+export interface VerifiedEmergencyResource {
+  id: string;
+  organizationName: string;
+  phone: string;
+  category: 'karnataka_emergency' | 'senior_helpline' | 'disability_cell' | 'police' | 'ambulance';
+  description: string;
+  verificationSource: string;
+  lastVerifiedDate: string;
+  status: 'verified' | 'active';
+}
+
+// SOS Trigger Event
+export interface SOSEvent {
+  id: string;
+  initiatedAt: number;
+  confirmedAt?: number;
+  cancelledAt?: number;
+  status: 'ready' | 'awaiting_confirmation' | 'calling' | 'messaging_opened' | 'request_submitted' | 'failed' | 'cancelled';
+  initiatedByVoice: boolean;
+  locationShared?: { lat: number; lng: number; landmark?: string };
+  notifiedContacts: string[];
+}
+
+// Audit & History Record
+export interface AuditHistoryEntry {
+  id: string;
+  timestamp: number;
+  category: 'medicine' | 'scam' | 'sos' | 'parenting' | 'profile' | 'security';
+  action: string;
+  details: string;
+  actor: string;
+  outcome: 'success' | 'warning' | 'cancelled' | 'failed';
+}
+
+export type ToastVariant = 'success' | 'warning' | 'danger' | 'info';
+export interface Toast {
+  id: string;
+  message: string;
+  variant: ToastVariant;
+  duration?: number;
+}
+
+// Language Strings
+export interface Translations {
+  [key: string]: { en: string; kn: string; hi: string };
 }

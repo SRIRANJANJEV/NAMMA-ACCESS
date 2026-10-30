@@ -1,0 +1,52 @@
+// ENHANCED MULTI-LANGUAGE COMMAND PARSER
+// Place this BEFORE getAIResponse function in VoiceAssistantModal.tsx
+
+const parseCommand = (userMessage: string, language: Language) => {
+  const lower = userMessage.toLowerCase();
+
+  // Enhanced patterns with MORE variations
+  const commands = {
+    addMedicine: {
+      en: ['add medicine', 'add med', 'new medicine', 'add medication', 'medicine add'],
+      kn: ['ಔಷಧ ಸೇರಿಸು', 'ಔಷಧ ಸೇರಿಸಿ', 'ಹೊಸ ಔಷಧ', 'ಔಷಧ', 'ಮೆಡಿಸಿನ್'],
+      hi: ['दवा जोड़ें', 'दवा जोड़ो', 'नई दवा', 'दवाई जोड़ें', 'मेडिसिन']
+    },
+    checkSchedule: {
+      en: ['check medicine', 'my medicine', 'show medicine', 'medicine list', 'today', 'schedule'],
+      kn: ['ನನ್ನ ಔಷಧ', 'ಔಷಧ ತೋರಿಸು', 'ಔಷಧಗಳು', 'ಇಂದು', 'ವೇಳಾಪಟ್ಟಿ'],
+      hi: ['मेरी दवा', 'दवा दिखाओ', 'दवाएं', 'आज', 'शेड्यूल']
+    },
+    emergency: {
+      en: ['help', 'emergency', 'sos', 'help me', 'need help'],
+      kn: ['ಸಹಾಯ', 'ತುರ್ತು', 'ಸಹಾಯ ಮಾಡಿ', 'ಸಹಾಯ ಬೇಕು'],
+      hi: ['मदद', 'हेल्प', 'आपातकाल', 'मदद चाहिए']
+    },
+    findMedicine: {
+      en: ['find', 'search', 'where is', 'do i have'],
+      kn: ['ಹುಡುಕು', 'ಹುಡುಕಿ', 'ಎಲ್ಲಿದೆ'],
+      hi: ['खोजें', 'ढूंढो', 'कहां है']
+    },
+    greeting: {
+      en: ['hello', 'hi', 'hey', 'good morning', 'good evening'],
+      kn: ['ನಮಸ್ಕಾರ', 'ಹಲೋ', 'ಹಾಯ್'],
+      hi: ['नमस्ते', 'हैलो', 'हाय']
+    }
+  };
+
+  // Check which command matches
+  for (const [commandName, patterns] of Object.entries(commands)) {
+    // Check current language first (priority)
+    if (patterns[language]?.some(p => lower.includes(p) || userMessage.includes(p))) {
+      return { command: commandName, language, original: userMessage };
+    }
+
+    // Then check other languages (fallback)
+    for (const [lang, phrases] of Object.entries(patterns)) {
+      if (phrases.some(p => lower.includes(p) || userMessage.includes(p))) {
+        return { command: commandName, language: lang as Language, original: userMessage };
+      }
+    }
+  }
+
+  return { command: 'unknown', language, original: userMessage };
+};
